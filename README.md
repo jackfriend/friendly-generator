@@ -1,4 +1,7 @@
-# Wpteens
+# Friendly Generator
+
+A simply static site generator to use as a boilerplate. Focus is on sass, nunjucks, and minimal files.
+
 
 Before you begin working, make sure to either:
 ```
