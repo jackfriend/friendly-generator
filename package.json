@@ -1,0 +1,31 @@
+{
+  "name": "wpteens",
+  "version": "0.0.1",
+  "description": "2018 redesign for WP Youth Bureau",
+  "main": "index.js",
+  "author": "eli lichtblau and jack friend",
+  "license": "MIT",
+  "dependencies": {
+    "browser-sync": "^2.23.6",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^4.1.0",
+    "gulp-clean-css": "^3.9.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-html-beautify": "^1.0.1",
+    "gulp-html-minifier": "^0.1.8",
+    "gulp-html-prettify": "^0.0.1",
+    "gulp-inject": "^4.3.0",
+    "gulp-insert-string-into-tag": "^1.0.2",
+    "gulp-nunjucks-render": "^2.2.2",
+    "gulp-plumber": "^1.2.0",
+    "gulp-remove-empty-lines": "^0.1.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^3.1.0",
+    "gulp-sitemap": "^5.0.0",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-tap": "^1.0.1",
+    "gulp-uglify": "^3.0.0",
+    "gulp-uglifyjs": "^0.6.2",
+    "vinyl": "^2.1.0"
+  }
+}
