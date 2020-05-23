@@ -1,4 +1,4 @@
-var gulp = require('gulp'),
+var { src, dest, watch, series, parallel } = require('gulp'),
     sass = require('gulp-sass'),
     sourcemaps = require('gulp-sourcemaps'),
     autoprefixer = require('gulp-autoprefixer'),
@@ -8,7 +8,7 @@ var gulp = require('gulp'),
     htmlbeautify = require('gulp-html-beautify'),
     removeemptylines = require('gulp-remove-empty-lines'),
     tap = require('gulp-tap'),
-    htmlmin = require('gulp-html-minifier'),
+    htmlmin = require('gulp-html-minifier-terser'),
     inject = require('gulp-insert-string-into-tag'),
     browsersync = require('browser-sync'),
     uglify = require('gulp-uglifyjs'),
@@ -17,14 +17,16 @@ var gulp = require('gulp'),
 
 const PATHS = {
     src: {
-        includes: './src/_includes/',
-        layouts: './src/_layouts/',
-        pages: './src/pages/**/*.{html,nunjucks,njk,njk.html}',
-        sass: './src/_sass/**/*.{scss,sass}',
-        sassimports: './src/_sass/imports.scss'
+        includes: 'src/_includes/',
+        layouts: 'src/_layouts/',
+        pages: 'src/pages/**/*.{html,nunjucks,njk,njk.html}',
+        sass: 'src/_sass/**/*.{scss,sass}',
+        sassimports: 'src/_sass/imports.scss',
+        js: 'src/js/**/*.*',
+        assets: 'src/assets/**/*.*'
     },
-    dist: './dist/',
-    dev: './dev/'
+    dist: 'dist/',
+    dev: 'dev/'
 }
 
 // to prevent errors from crashing gulp watch
@@ -35,38 +37,38 @@ function swallowError (error) {
 
 
 // for live reload
-gulp.task('browsersync', function () {
+function taskBrowserSync() {
     browsersync({
         server: {
-            baseDir: './dev',
+            baseDir: PATHS.dev,
             port: 8000
         }
     })
-});
+};
 
 
 // to generate sitemap
-gulp.task('sitemap', function () {
-    gulp.src('./src/pages/*.{html,njk}', {
+function taskSitemap() {
+    return src(PATHS.src.pages, {
             read: false
         })
         .pipe(sitemap({
-            siteUrl: 'http://www.whiteplainsteens.com'
+            siteUrl: 'http://www.jackfriend.com'
         }))
-        .pipe(gulp.dest('./dist'));
-});
+        .pipe(dest(PATHS.dist));
+};
 
 // to copy assests folder
-gulp.task('copy::dev', function () {
-    return gulp.src('./src/assets/**/*.*')
-      .pipe(gulp.dest('./dev/assets'));
-});
+function taskCopyDev() {
+    return src(PATHS.src.assets)
+      .pipe(dest(PATHS.dev +'assets'));
+};
 
 // to copy assests folder
-gulp.task('copy::prod', function () {
-    return gulp.src('./src/assets/**/*.*')
-      .pipe(gulp.dest('./dist/assets'));
-});
+function taskCopyProd() {
+    return src(PATHS.src.assets)
+      .pipe(dest(PATHS.dist + 'assets'));
+};
 
 
 
@@ -82,35 +84,34 @@ gulp.task('copy::prod', function () {
  ######  ##     ##  ######   ######
 */
 
-
-gulp.task('sass::dev', function () {
+function taskSassDev() {
   console.log('DEV: compiling sass...');
 
-  gulp.src(PATHS.src.sassimports)
+  return src(PATHS.dev.sass)
       .pipe(sourcemaps.init({loadMaps: true}))   // sass sourcemaps
       .pipe(sass())                              // compile sass
       .on('error', swallowError)
       .pipe(sourcemaps.write())
       .pipe(rename('app.css'))                   // name file
-      .pipe(gulp.dest(PATHS.dev))                // save to dev (development) folder
+      .pipe(dest(PATHS.dev))                     // save to dev (development) folder
       .pipe(browsersync.reload({                 // for live reload on save
           stream: true
       }))
 
   console.log('DEV: sass compiled');
-});
+};
 
 
-gulp.task('sass::prod', function () {
+function taskSassProd() {
   console.log('PROD: compiling sass...');
-  gulp.src(PATHS.src.sassimports)
+  return src(PATHS.src.sass)
       .pipe(sass())                             // compile sass
       .pipe(autoprefixer())                     // autoprefix for browser support
       .pipe(cleancss({compatibility: 'ie8'}))   // minify css
       .pipe(rename('app.min.css'))              // name file
-      .pipe(gulp.dest(PATHS.dist));             // save to dist (deployment) folder
+      .pipe(dest(PATHS.dist));                  // save to dist (deployment) folder
   console.log('PROD: sass compiled');
-});
+};
 
 
 
@@ -126,10 +127,10 @@ gulp.task('sass::prod', function () {
 */
 
 
-gulp.task('nunjucks::dev', function() {
+function taskNunjucksDev() {
     console.log('DEV: compiling nunjucks...')
 
-    gulp.src(PATHS.src.pages)
+    return src(PATHS.src.pages)
         .pipe(nunjucksrender({ path:[PATHS.src.includes, PATHS.src.layouts] }))    // run nunjucks -- uses layouts from _includes and _templates
         .on('error', swallowError)
         .pipe(inject.append({
@@ -147,18 +148,18 @@ gulp.task('nunjucks::dev', function() {
                             preserve_newlines: true,
                             end_with_newline: false}))
         .pipe(removeemptylines())                                                  // to remove extra newlines in html
-        .pipe(gulp.dest(PATHS.dev))
+        .pipe(dest(PATHS.dev))
         .pipe(browsersync.reload({                                                 // for live reload on save
             stream: true
         }));
 
     console.log('DEV: nunjucks compiled')
-});
+};
 
 
-gulp.task('nunjucks::prod', function() {
+function taskNunjucksProd() {
     console.log('PROD: compiling nunjucks...')
-    gulp.src(PATHS.src.pages)
+    return src(PATHS.src.pages)
         .pipe(nunjucksrender({ path:[PATHS.src.includes, PATHS.src.layouts] }))    // run nunjucks -- uses layouts from _includes and _templates
         .pipe(inject.append({
             startTag:'<!-- inject:css -->',
@@ -171,9 +172,9 @@ gulp.task('nunjucks::prod', function() {
             string:'<script src="app.min.js"><\/script>'
         }))                                                                        // inserts the js -- it uses the development version of the js
         .pipe(htmlmin({collapseWhitespace: true}))                                 // to minify
-        .pipe(gulp.dest(PATHS.dist));
+        .pipe(dest(PATHS.dist));
     console.log('PROD: nunjucks compiled')
-});
+};
 
 
 
@@ -189,10 +190,10 @@ gulp.task('nunjucks::prod', function() {
   #####      #####
 */
 
-gulp.task('js::dev', function() {
-    gulp.src('./src/js/**/*.*')
+function taskJsDev() {
+    return src(PATHS.src.js)
         .pipe(sourcemaps.init())
-        .pipe(uglify('./src/js/**/*.js', {
+        .pipe(uglify(PATHS.src.js, {
             output: {
                 beautify: true
             }
@@ -200,16 +201,16 @@ gulp.task('js::dev', function() {
         .on('error', swallowError)
         .pipe(sourcemaps.write())
         .pipe(rename('app.js'))
-        .pipe(gulp.dest('./dev'))
-})
+        .pipe(dest(PATHS.dist));
+};
 
 
-gulp.task('js::prod', function() {
-    gulp.src('./src/js/**/*.*')
-        .pipe(uglify('./src/js/**/*.js'))
+function taskJsProd() {
+    return src(PATHS.src.js)
+        .pipe(uglify(PATHS.src.js))
         .pipe(rename('app.min.js'))
-        .pipe(gulp.dest(PATHS.dist))
-})
+        .pipe(dest(PATHS.dist));
+};
 
 
 
@@ -232,16 +233,12 @@ gulp.task('js::prod', function() {
 */
 
 
-gulp.task('watch', ['copy::dev', 'sass::dev', 'nunjucks::dev', 'js::dev', 'browsersync'], function () {
-    gulp.watch('./src/_sass/**/*.*', ['sass::dev']);
-    gulp.watch(['./src/_includes/**/*.*',
-                './src/_layouts/**/*.*',
-                './src/pages/**/*.*'], ['nunjucks::dev']);
-    gulp.watch('./src/js/**/*.*', ['js::dev']);
-    gulp.watch('./dev/**/*.*', browsersync.reload);
-})
+ exports.default = function() {
+    watch(PATHS.src.sass, taskSassDev);
+    watch([PATHS.src.pages, PATHS.src.includes, PATHS.src.layouts], taskNunjucksDev);
+    watch(PATHS.src.js, taskJsDev);
+    watch(PATHS.dev, browsersync.reload);
+};
 
-gulp.task('prod', ['copy::prod', 'sass::prod', 'nunjucks::prod', 'js::prod'], function () {
-    gulp.src('./src/public/**/*.*')
-        .pipe(gulp.dest('./dist'))
-})
+exports.prod = series(taskCopyProd, taskSassProd, taskNunjucksProd, taskJsProd);
+

@@ -69,7 +69,7 @@ To host this project, ensure that [git](https://git-scm.com/downloads), [NodeJS]
 Next, run:
 ```
 cd path/to/directory
-git clone https://gitlab.com/wpyouth10601/website.git
+git clone hhttps://github.com/jackfriend/friendly-generator.git
 yarn install
 ```
 
