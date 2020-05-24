@@ -1,5 +1,12 @@
 # Friendly Generator
 
+---
+> :warning: **Several dependencies appear undersupported**
+- [BrowserSync needs to be updated to Chokidar v3](https://github.com/BrowserSync/browser-sync/issues/1765)
+- GulpJs glob-watcher [needs to be updated to Chokidar v3](https://github.com/gulpjs/glob-watcher/issues/55)
+---
+
+
 A simply static site generator to use as a boilerplate. Focus is on sass, nunjucks, and minimal files.
 
 
