@@ -5,13 +5,12 @@ var { src, dest, watch, series, parallel } = require('gulp'),
     rename = require('gulp-rename'),
     cleancss = require('gulp-clean-css'),
     nunjucksrender = require('gulp-nunjucks-render'),
-    htmlbeautify = require('gulp-html-beautify'),
-    removeemptylines = require('gulp-remove-empty-lines'),
+    htmlpretty = require('pretty'),
     tap = require('gulp-tap'),
     htmlmin = require('gulp-html-minifier-terser'),
     inject = require('gulp-insert-string-into-tag'),
     browsersync = require('browser-sync'),
-    uglify = require('gulp-uglifyjs'),
+    uglify = require('gulp-uglify'),
     sitemap = require('gulp-sitemap');
 
 
@@ -143,11 +142,7 @@ function taskNunjucksDev() {
             endTag:'<!-- endinject:js -->',
             string:'<script src="app.js"><\/script>'
         }))                                                                        // inserts the js file -- it uses the development version of the js
-        .pipe(htmlbeautify({indent_char: ' ',                                      // prettify html
-                            indent_size: 2,
-                            preserve_newlines: true,
-                            end_with_newline: false}))
-        .pipe(removeemptylines())                                                  // to remove extra newlines in html
+        .pipe(htmlpretty({ocd: true))
         .pipe(dest(PATHS.dev))
         .pipe(browsersync.reload({                                                 // for live reload on save
             stream: true
@@ -233,12 +228,18 @@ function taskJsProd() {
 */
 
 
- exports.default = function() {
-    watch(PATHS.src.sass, taskSassDev);
-    watch([PATHS.src.pages, PATHS.src.includes, PATHS.src.layouts], taskNunjucksDev);
-    watch(PATHS.src.js, taskJsDev);
-    watch(PATHS.dev, browsersync.reload);
-};
+ exports.default = series(
+    taskCopyDev,
+    taskBrowserSync,
+    taskSassDev,
+    taskNunjucksDev,
+    taskJsDev,
+    parallel(
+        watch(PATHS.src.sass, series(taskSassDev, browsersync.reload)),
+        watch([PATHS.src.pages, PATHS.src.includes, PATHS.src.layouts], series(taskNunjucksDev, browsersync.reload)),
+        watch(PATHS.src.js, series(taskJsDev, browsersync.reload))
+    )
+);
 
 exports.prod = series(taskCopyProd, taskSassProd, taskNunjucksProd, taskJsProd);
 

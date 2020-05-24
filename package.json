@@ -5,30 +5,31 @@
   "author": "jack friend",
   "license": "MIT",
   "repository": {
-      "type": "git",
-      "url": "https://github.com/jackfriend/friendly-generator.git"
-    },
+    "type": "git",
+    "url": "https://github.com/jackfriend/friendly-generator.git"
+  },
   "dependencies": {
-    "browser-sync": "^2.26.7",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^7.0.1",
     "gulp-clean-css": "^4.3.0",
     "gulp-concat": "^2.6.1",
-    "gulp-html-beautify": "^1.0.1",
     "gulp-html-minifier-terser": "^6.0.0",
-    "gulp-html-prettify": "^0.0.1",
     "gulp-inject": "^5.0.5",
     "gulp-insert-string-into-tag": "^1.0.2",
     "gulp-nunjucks-render": "^2.2.3",
     "gulp-plumber": "^1.2.1",
-    "gulp-remove-empty-lines": "^0.1.0",
     "gulp-rename": "^2.0.0",
     "gulp-sass": "^4.1.0",
     "gulp-sitemap": "7.6.0",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-tap": "^2.0.0",
-    "gulp-uglify": "^3.0.2",
-    "gulp-uglifyjs": "^0.6.2",
     "vinyl": "^2.2.0"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.26.7",
+    "gulp-nunjucks": "^5.0.1",
+    "gulp-uglify": "^3.0.2",
+    "pretty": "^2.0.0",
+    "reload": "^3.0.4"
   }
 }
